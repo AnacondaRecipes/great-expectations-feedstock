@@ -18,6 +18,7 @@ build:
 requirements:
   host:
     - python
+    - wheel
     - pip
   run:
     - altair >=4.2.1,<5.0.0
