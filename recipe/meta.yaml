@@ -66,6 +66,7 @@ test:
     - pip
   commands:
     - pip check
+    - great_expectations --help
 
 about:
   home: https://github.com/great-expectations/great_expectations
