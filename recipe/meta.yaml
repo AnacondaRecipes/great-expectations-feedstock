@@ -12,8 +12,6 @@ build:
   skip: True  # [py<39]
   number: 0
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
-  entry_points:
-    - great_expectations = great_expectations.cli:main
 
 requirements:
   host:
