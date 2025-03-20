@@ -47,6 +47,55 @@ requirements:
   run_constrained:
     - sqlalchemy >=1.3.16
     - pyspark >=2.3.2
+    # Extra: arrow
+    - feather-format >=0.4.1
+    # Extra: athena
+    - pyathena <3,>=2.0.0
+    - sqlalchemy >=1.4.0,<2.0.0
+    # Extra: s3
+    - boto3 >=1.17.106
+    # Extra: azure_secrets
+    - azure-identity >=1.10.0
+    - azure-keyvault-secrets >=4.0.0
+    - azure-storage-blob >=12.5.0
+    # Extra: gcp
+    - gcsfs >=0.5.1
+    - google-cloud-bigquery-core >=3.3.6
+    - google-cloud-bigquery-storage >=2.20.0
+    - google-cloud-secret-manager >=1.0.0
+    - google-cloud-storage >=2.10.0  # [py>=311]
+    - google-cloud-storage >=1.28.0  # [py<311]
+    - sqlalchemy-bigquery >=1.3.0
+    # Extra: clickhouse
+    - clickhouse-sqlalchemy >=0.2.2  # [py<312]
+    - clickhouse-sqlalchemy >=0.3.0  # [py>=312]
+    # Extra: cloud
+    - orjson >=3.9.7
+    # Extra: databricks
+    - databricks-sqlalchemy >=1.0.0
+    # Extra: mssql
+    - pyodbc >=4.0.30
+    # Extra: dremio
+    - sqlalchemy-dremio ==1.2.1
+    # Extra: excel
+    - openpyxl >=3.0.7
+    - xlrd >=1.1.0,<2.0.0
+    # Extra: hive
+    - PyHive >=0.6.5
+    - thrift >=0.16.0
+    - thrift-sasl >=0.4.3
+    # Extra: mysql
+    - PyMySQL >=1.1.1
+    # Extra: pagerduty
+    - pypd ==1.1.0
+    # Extra: postgresql
+    - psycopg2-binary >=2.7.6
+    # Extra: redshift
+    - sqlalchemy-redshift >=0.8.8
+    # Extra: snowflake
+    - snowflake-connector-python >=2.5.0 # [py<311]
+    - snowflake-connector-python >2.9.0  # [py>=311]
+    - snowflake-sqlalchemy >=1.2.3,!=1.7.0
 
 test:
   imports:
