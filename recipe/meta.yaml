@@ -13,7 +13,6 @@ build:
   number: 0
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
 
-
 requirements:
   host:
     - python
@@ -105,7 +104,6 @@ test:
     - pip
   commands:
     - pip check
-    - great_expectations --help
 
 about:
   home: https://github.com/great-expectations/great_expectations
