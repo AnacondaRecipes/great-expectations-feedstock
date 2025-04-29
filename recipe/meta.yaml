@@ -1,4 +1,4 @@
-{% set version = "1.3.10" %}
+{% set version = "1.4.1" %}
 
 package:
   name: great-expectations
@@ -6,10 +6,11 @@ package:
 
 source:
   url: https://pypi.io/packages/source/g/great-expectations/great_expectations-{{ version }}.tar.gz
-  sha256: 250e6dae9dc1496ea995ae308f903f0736fd57cb41decec2041425b8939e2840
+  sha256: 23dd225a9ac3a1aac4e234c29617f323c1ebbe3411b2cf65bb8c13d1faeef167
 
 build:
-  skip: True  # [py<39]
+  # Python 3.13 is not supported by upstream
+  skip: True  # [py<39 or py>312]
   number: 1
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
 
@@ -65,6 +66,7 @@ requirements:
     - google-cloud-secret-manager >=1.0.0
     - google-cloud-storage >=2.10.0  # [py>=311]
     - google-cloud-storage >=1.28.0  # [py<311]
+    - pandas_gbq >=0.26.1
     - sqlalchemy-bigquery >=1.3.0
     # Extra: clickhouse
     - clickhouse-sqlalchemy >=0.2.2  # [py<312]
