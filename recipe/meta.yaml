@@ -106,6 +106,7 @@ test:
     - pip
   commands:
     - pip check
+# Upstream uses relative imports in their tests, multiple missing dependencies
 
 about:
   home: https://github.com/great-expectations/great_expectations
