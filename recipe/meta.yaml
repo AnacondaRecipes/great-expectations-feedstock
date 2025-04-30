@@ -1,11 +1,12 @@
+{% set name = "great-expectations" %}
 {% set version = "1.4.1" %}
 
 package:
-  name: great-expectations
+  name: {{ name }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/g/great-expectations/great_expectations-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_')}}-{{ version }}.tar.gz
   sha256: 23dd225a9ac3a1aac4e234c29617f323c1ebbe3411b2cf65bb8c13d1faeef167
 
 build:
