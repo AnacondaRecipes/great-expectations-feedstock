@@ -100,14 +100,153 @@ requirements:
     - snowflake-sqlalchemy >=1.2.3,!=1.7.0
 
 test:
+  source_files:
+    - tests
   imports:
     - great_expectations
+    - great_expectations.analytics
+    - great_expectations.checkpoint
+    - great_expectations.compatibility
+    - great_expectations.core
+    - great_expectations.data_context
+    - great_expectations.datasource
+    - great_expectations.exceptions
+    - great_expectations.execution_engine
+    - great_expectations.expectations
+    - great_expectations.experimental
+    - great_expectations.metrics
+    - great_expectations.profile
+    - great_expectations.render
+    - great_expectations.self_check
+    - great_expectations.types
+    - great_expectations.validator
   requires:
     - pip
+    - pytest
+    - responses
+    - pyarrow
+    - boto3
+    - freezegun >=0.3.15
+    - pytest-mock >=3.14.0
+    - sqlalchemy
   commands:
     - pip check
     - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
-# Upstream uses relative imports in their tests, multiple missing dependencies
+
+    # Missing dependencies
+    {% set ignore_tests = " --ignore=tests/integration/cloud/rest_contracts" %} # missing dep: pact
+    {% set ignore_tests = ignore_tests + " --ignore=tests/datasource" %}   # missing dep: moto
+    {% set ignore_tests = ignore_tests + " --ignore=tests/execution_engine" %}   # missing dep: moto
+    {% set ignore_tests = ignore_tests + " --ignore=tests/actions" %}  # missing dep: moto
+    {% set ignore_tests = ignore_tests + " --ignore=tests/data_context" %} # missing dep: moto
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/core/test_expect_column_values_to_be_present_in_other_table.py" %} # missing relimp: contrib
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/core/test_expect_queried_column_value_frequency_to_meet_threshold.py" %} # missing relimp: contrib
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/core/test_expect_queried_table_row_count_to_be.py" %} # missing relimp: contrib
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/test_script_runner.py" %} # missing relimp: asset
+    {% set ignore_tests = ignore_tests + " --ignore=tests/scripts/test_public_api_report.py" %} # missing relimp: docs
+    {% set ignore_tests = ignore_tests + " --ignore=tests/test_markers.py" %} # missing relimp: tasks
+    {% set ignore_tests = ignore_tests + " --ignore=tests/test_packaging.py" %} # missing relimp: requirements
+    {% set ignore_tests = ignore_tests + " --ignore=tests/core/test__docs_decorators.py" %}
+
+    # Tests missing DB, Spark or other data source connections:
+    {% set ignore_tests = ignore_tests + " --deselect=tests/validator/test_metrics_calculator.py::test_column_partition_metric_for_spark" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/spark/test_spark_connect.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/spark/test_spark_config.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/query/test_row_count.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/multi_column/test_sum_equal.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column_pair_values/test_in_set.py" %}
+
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_values_not_match_regex_values.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_values_not_match_regex_count.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_values_non_null.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_values_match_regex_values.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_values_match_regex_count.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_sample_values.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_null_count.py" %}
+
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_mean.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_distinct_values_count.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_distinct_values.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/column/test_descriptive_stats.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/batch/test_sample_values.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/batch/test_row_count.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/metrics/batch/test_batch_column_types.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/test_misconfigured_expectations.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/test_expectation_conditions.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/test_canonical_expectations.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_unexpected_rows_expectation.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_table_row_count_to_equal_other_table.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_table_row_count_to_equal.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_table_row_count_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_table_columns_to_match_set.py" %}
+
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_table_columns_to_match_ordered_list.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_table_column_count_to_equal.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_table_column_count_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_select_column_values_to_be_unique_within_record.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_multicolumn_sum_to_equal.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_compound_column_values_to_be_unique.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_not_match_regex_list.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_not_match_regex.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_not_match_like_pattern_list.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_not_match_like_pattern.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_not_be_null.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_not_be_in_set.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_match_regex_list.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_match_regex.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_match_like_pattern_list.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_match_like_pattern.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_be_unique.py" %}
+
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_be_of_type.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_be_null.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_be_in_type_list.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_be_in_set.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_values_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_value_z_scores_to_be_less_than.py" %}
+
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_value_lengths_to_equal.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_value_lengths_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_unique_value_count_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_to_exist.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_sum_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_stdev_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_quantile_values_to_be_between.py" %}
+
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_proportion_of_unique_values_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_pair_values_to_be_equal.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_pair_values_a_to_be_greater_than_b.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_most_common_value_to_be_in_set.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_min_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_median_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_mean_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_max_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_kl_divergence_to_be_less_than.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_distinct_values_to_equal_set.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_distinct_values_to_contain_set.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/expectations/test_expect_column_distinct_values_to_be_in_set.py" %}
+
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/data_sources/test_snowflake.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/data_sources_and_expectations/data_sources/test_postgresql.py" %}
+
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/common_workflows/test_filesystem_asset_workflows.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/integration/common_workflows/test_sql_asset_workflows.py" %}
+
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/test_row_conditions.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/test_null_filters.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/metrics/test_map_metric.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/metrics/test_core.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/metrics/column_map_metrics/test_unexpected_indices_and_query.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/metrics/column_map_metrics/test_column_map_condition_auxillary_methods.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/core/test_expect_table_row_count_to_be_between.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/expectations/core/test_expect_column_value_z_scores_to_be_less_than.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/core/test_validation_definition.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/core/test_serialization.py" %}
+
+    # Loads script with relative path
+    {% set ignore_tests = ignore_tests + " --deselect=tests/test_deprecation.py::test_deprecation_warnings_have_been_removed_after_two_minor_versions" %}
+
+    - pytest -vv {{ ignore_tests }} tests
 
 about:
   home: https://github.com/great-expectations/great_expectations
