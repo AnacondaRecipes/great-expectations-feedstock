@@ -244,7 +244,7 @@ test:
     {% set ignore_tests = ignore_tests + " --ignore=tests/core/test_serialization.py" %}
 
     # Forward/Backslash issue on Windows platform
-    {% set ignore_tests = ignore_tests + " --ignore=tests/test_definitions/test_expectations_v3_api.py" %}
+    {% set ignore_tests = ignore_tests + " --ignore=tests/test_definitions/test_expectations_v3_api.py" %} # [win]
 
     # Loads script with relative path
     {% set ignore_tests = ignore_tests + " --deselect=tests/test_deprecation.py::test_deprecation_warnings_have_been_removed_after_two_minor_versions" %}
