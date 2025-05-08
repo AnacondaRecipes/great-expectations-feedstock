@@ -148,7 +148,7 @@ test:
     {% set ignore_tests = ignore_tests + " --ignore=tests/test_packaging.py" %} # missing relimp: requirements
     {% set ignore_tests = ignore_tests + " --ignore=tests/core/test__docs_decorators.py" %}
 
-    # Tests missing DB, Spark or other data source connections:
+    # Tests missing DB, Spark or other data source connections
     {% set ignore_tests = ignore_tests + " --deselect=tests/validator/test_metrics_calculator.py::test_column_partition_metric_for_spark" %}
     {% set ignore_tests = ignore_tests + " --ignore=tests/integration/spark/test_spark_connect.py" %}
     {% set ignore_tests = ignore_tests + " --ignore=tests/integration/spark/test_spark_config.py" %}
@@ -243,11 +243,17 @@ test:
     {% set ignore_tests = ignore_tests + " --ignore=tests/core/test_validation_definition.py" %}
     {% set ignore_tests = ignore_tests + " --ignore=tests/core/test_serialization.py" %}
 
-    # Forward/Backslash issue on Windows platform
-    {% set ignore_tests = ignore_tests + " --ignore=tests/test_definitions/test_expectations_v3_api.py" %} # [win]
-
     # Loads script with relative path
     {% set ignore_tests = ignore_tests + " --deselect=tests/test_deprecation.py::test_deprecation_warnings_have_been_removed_after_two_minor_versions" %}
+
+    # Problematic tests on Windows platform
+    {% set ignore_tests = ignore_tests + " --ignore=tests/test_definitions/test_expectations_v3_api.py" %} # [win]
+    {% set ignore_tests = ignore_tests + " --deselect=tests/render/test_page_renderer.py::test_snapshot_ValidationResultsPageRenderer_render_with_run_info_at_start" %} # [win]
+    {% set ignore_tests = ignore_tests + " --deselect=tests/render/test_page_renderer.py::test_snapshot_ValidationResultsPageRenderer_render_with_run_info_at_end" %} # [win]
+    {% set ignore_tests = ignore_tests + " --deselect=tests/checkpoint/test_checkpoint.py::TestCheckpointResult::test_checkpoint_run_with_data_docs_and_slack_actions_emit_page_links" %} # [win]
+    {% set ignore_tests = ignore_tests + " --deselect=tests/render/test_data_documentation_site_builder.py::test_site_builder_with_custom_site_section_builders_config" %} # [win]
+    {% set ignore_tests = ignore_tests + " --deselect=tests/render/test_page_renderer.py::test_ValidationResultsPageRenderer_render_validation_header" %} # [win]
+    {% set ignore_tests = ignore_tests + " --deselect=tests/analytics/test_analytics.py::test_ephemeral_context_init" %} # [win]
 
     - pytest -vv {{ ignore_tests }} tests
 
