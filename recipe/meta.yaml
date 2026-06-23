@@ -1,18 +1,24 @@
 {% set name = "great-expectations" %}
-{% set version = "1.8.0" %}
+{% set version = "1.18.1" %}
+{% set ignore_tests = " --ignore=tests/core/test__docs_decorators.py" %}
+{% set deselect_tests = " --deselect=tests/core/test_validation_definition.py::TestValidationRun::test_adds_correct_batch_parameter_fields_for_postgres" %}
+{% set deselect_tests = 'deselect_tests + " --deselect=tests/core/test_serialization.py::test_serialization_of_spark_df"' %}  # [win]
 
+# No need to test doc generation.
+# Need to set up a localhost server, can`t find in the upstream repo for an example.
+# PySpark cannot locate the Python interpreter on win
 package:
   name: {{ name }}
   version: {{ version }}
 
 source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_')}}-{{ version }}.tar.gz
-  sha256: 8f24975673b2795bd18c25b587e4c674609347184a1a638fa7eaf209c6c3dabb
+  sha256: 8eea86d014f4e4af2c4d92922d851b3cc95876b89ab3f6400dfdaa97bf9429f8
 
 build:
   number: 0
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
-  skip: True  # [py<39]
+  skip: true  # [py<39]
 
 requirements:
   host:
@@ -48,12 +54,6 @@ requirements:
     - typing-extensions >=4.1.0
     - tzlocal >=1.2
 
-# No need to test doc generation.
-{% set ignore_tests = " --ignore=tests/core/test__docs_decorators.py" %}
-# Need to set up a localhost server, can`t find in the upstream repo for an example.
-{% set deselect_tests = " --deselect=tests/core/test_validation_definition.py::TestValidationRun::test_adds_correct_batch_parameter_fields_for_postgres" %}
-# PySpark cannot locate the Python interpreter on win
-{% set deselect_tests = deselect_tests + " --deselect=tests/core/test_serialization.py::test_serialization_of_spark_df" %}  # [win]
 test:
   source_files:
     - tests
@@ -101,7 +101,6 @@ about:
   license_family: Apache
   license_file: LICENSE
   summary: Always know what to expect from your data.
-
   description: |
     Great Expectations helps teams save time and promote analytic integrity
     by offering a unique approach to automated testing: pipeline tests.
